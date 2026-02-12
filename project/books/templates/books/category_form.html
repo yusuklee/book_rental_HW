@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}카테고리 추가 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 450px; margin: 2rem auto;">
+    <h2>카테고리 추가</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <ul class="errorlist">
+                {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">추가</button>
+        <a href="{% url 'books:category_list' %}" class="btn btn-danger">취소</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{{ book.title }}</h2>
+    <table>
+        <tr><th style="width:120px;">저자</th><td>{{ book.author }}</td></tr>
+        <tr>
+            <th>카테고리</th>
+            <td>
+                <div class="category-tags">
+                    {% for cat in book.categories.all %}
+                    <span class="category-tag">{{ cat.name }}</span>
+                    {% empty %}
+                    <span>-</span>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr><th>설명</th><td>{{ book.description|default:"-" }}</td></tr>
+        <tr><th>총 수량</th><td>{{ book.total_copies }}권</td></tr>
+        <tr>
+            <th>대출 가능</th>
+            <td>
+                {% if book.available_copies > 0 %}
+                <span class="badge badge-available">{{ book.available_copies }}권 가능</span>
+                {% else %}
+                <span class="badge badge-unavailable">대출 불가</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% if avg_rating %}
+        <tr>
+            <th>평균 평점</th>
+            <td>
+                <span class="stars">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating %}&#9733;{% else %}&#9734;{% endif %}
+                    {% endfor %}
+                </span>
+                ({{ avg_rating|floatformat:1 }}점)
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+
+    <div class="mt-1">
+        {% if user.is_authenticated and book.available_copies > 0 %}
+        <a href="{% url 'loans:borrow' book.pk %}" class="btn btn-success">대출하기</a>
+        {% endif %}
+        {% if can_review %}
+        <a href="{% url 'books:review_add' book.pk %}" class="btn btn-primary">리뷰 작성</a>
+        {% endif %}
+        <a href="{% url 'books:book_list' %}" class="btn btn-primary">목록으로</a>
+    </div>
+</div>
+
+<!-- 복사본 현황 -->
+<div class="card">
+    <h2>복사본 현황</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>상태</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for copy in copies %}
+            <tr>
+                <td>{{ copy.copy_number }}번</td>
+                <td>
+                    {% if copy.is_available %}
+                    <span class="badge badge-available">대출 가능</span>
+                    {% else %}
+                    <span class="badge badge-unavailable">대출 중</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-center">복사본이 없습니다.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 리뷰 -->
+<div class="card">
+    <h2>리뷰 ({{ reviews|length }})</h2>
+    {% for review in reviews %}
+    <div class="review-item">
+        <div class="review-header">
+            <span class="review-author">{{ review.user.username }}</span>
+            <span class="review-date">{{ review.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        <div class="stars">
+            {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}&#9733;{% else %}&#9734;{% endif %}
+            {% endfor %}
+        </div>
+        <p>{{ review.content }}</p>
+    </div>
+    {% empty %}
+    <p class="text-center">아직 리뷰가 없습니다.</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}카테고리 관리 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="flex-between">
+        <h2>카테고리 관리</h2>
+        <a href="{% url 'books:category_add' %}" class="btn btn-success">카테고리 추가</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>카테고리명</th>
+                <th>도서 수</th>
+                <th>관리</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>{{ category.id }}</td>
+                <td>{{ category.name }}</td>
+                <td>{{ category.books.count }}</td>
+                <td>
+                    <a href="{% url 'books:category_delete' category.pk %}" class="btn btn-danger btn-sm">삭제</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">등록된 카테고리가 없습니다.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>도서관 관리 시스템에 오신 것을 환영합니다</h2>
+    <p>도서 검색, 대출, 반납 등 다양한 서비스를 이용하실 수 있습니다.</p>
+    <div class="mt-1">
+        <a href="{% url 'books:book_list' %}" class="btn btn-primary">도서 목록 보기</a>
+        <a href="{% url 'stats:popular' %}" class="btn btn-success">인기 차트</a>
+    </div>
+</div>
+
+{% if recent_books %}
+<div class="card">
+    <h2>최근 등록된 도서</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>제목</th>
+                <th>저자</th>
+                <th>카테고리</th>
+                <th>대출 가능</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in recent_books %}
+            <tr>
+                <td><a href="{% url 'books:book_detail' book.pk %}">{{ book.title }}</a></td>
+                <td>{{ book.author }}</td>
+                <td>
+                    <div class="category-tags">
+                        {% for cat in book.categories.all %}
+                        <span class="category-tag">{{ cat.name }}</span>
+                        {% empty %}
+                        <span>-</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>
+                    {% if book.available_copies > 0 %}
+                    <span class="badge badge-available">{{ book.available_copies }}/{{ book.total_copies }}</span>
+                    {% else %}
+                    <span class="badge badge-unavailable">대출 불가</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

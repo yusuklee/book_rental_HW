@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}인기 서적 차트 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>인기 서적 차트 (최근 3개월)</h2>
+
+    {% if popular %}
+    <div class="bar-chart">
+        {% for item in popular %}
+        <div class="bar-row">
+            <span class="rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">{{ forloop.counter }}</span>
+            <span class="bar-label" style="margin-left:0.5rem;">
+                <a href="{% url 'books:book_detail' item.book_copy__book__id %}">{{ item.book_copy__book__title }}</a>
+                <small>({{ item.book_copy__book__author }})</small>
+            </span>
+            <span class="bar-fill" style="width: {{ item.loan_count|floatformat:0 }}{% widthratio item.loan_count max_count 300 %}px;"></span>
+            <span class="bar-value">{{ item.loan_count }}회</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">최근 3개월간 대출 기록이 없습니다.</p>
+    {% endif %}
+</div>
+
+<!-- 카테고리별 인기 차트 -->
+<div class="card">
+    <h2>카테고리별 인기 차트</h2>
+    <form method="get" class="search-bar">
+        <div class="form-group">
+            <label>카테고리 선택</label>
+            <select name="category">
+                <option value="">선택하세요</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"d" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">조회</button>
+    </form>
+
+    {% if category_popular %}
+    <div class="bar-chart">
+        {% for item in category_popular %}
+        <div class="bar-row">
+            <span class="rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% endif %}">{{ forloop.counter }}</span>
+            <span class="bar-label" style="margin-left:0.5rem;">
+                <a href="{% url 'books:book_detail' item.book_copy__book__id %}">{{ item.book_copy__book__title }}</a>
+                <small>({{ item.book_copy__book__author }})</small>
+            </span>
+            <span class="bar-value">{{ item.loan_count }}회</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% elif selected_category %}
+    <p class="text-center">해당 카테고리의 대출 기록이 없습니다.</p>
+    {% endif %}
+</div>
+{% endblock %}

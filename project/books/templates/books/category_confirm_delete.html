@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}카테고리 삭제 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto;">
+    <h2>카테고리 삭제</h2>
+    <p>'<strong>{{ category.name }}</strong>' 카테고리를 정말 삭제하시겠습니까?</p>
+    <form method="post" class="mt-1">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">삭제</button>
+        <a href="{% url 'books:category_list' %}" class="btn btn-primary">취소</a>
+    </form>
+</div>
+{% endblock %}

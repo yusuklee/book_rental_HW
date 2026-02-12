@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}회원 목록 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>회원 목록</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>아이디</th>
+                <th>이메일</th>
+                <th>유형</th>
+                <th>가입일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+            <tr>
+                <td>{{ member.username }}</td>
+                <td>{{ member.email }}</td>
+                <td>
+                    {% if member.is_admin %}
+                    <span class="badge badge-unavailable">관리자</span>
+                    {% else %}
+                    <span class="badge badge-available">일반 사용자</span>
+                    {% endif %}
+                </td>
+                <td>{{ member.date_joined|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">등록된 회원이 없습니다.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

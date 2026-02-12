@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}카테고리별 대출 비율 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>카테고리별 대출 비율</h2>
+
+    {% if chart_items %}
+    <div style="display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-start;">
+        <!-- Pie Chart -->
+        <div class="chart-container" style="flex:1; min-width:300px;">
+            <canvas id="pieChart" width="400" height="400"></canvas>
+        </div>
+
+        <!-- Legend Table -->
+        <div style="flex:1; min-width:250px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>색상</th>
+                        <th>카테고리</th>
+                        <th>대출 수</th>
+                        <th>비율</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in chart_items %}
+                    <tr>
+                        <td><span class="color-box" style="background:{{ item.color }};display:inline-block;width:16px;height:16px;border-radius:3px;"></span></td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.count }}건</td>
+                        <td>{{ item.pct }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="mt-1"><strong>총 대출:</strong> {{ total }}건</p>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center">대출 기록이 없습니다.</p>
+    {% endif %}
+</div>
+
+{% if chart_items %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    const colors = [
+        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+        '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b'
+    ];
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ labels_json|safe }},
+            datasets: [{
+                data: {{ values_json|safe }},
+                backgroundColor: colors.slice(0, {{ chart_items|length }}),
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

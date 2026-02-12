@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}도서 목록 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>도서 목록</h2>
+
+    <form method="get" class="search-bar">
+        <div class="form-group">
+            <label>검색 유형</label>
+            <select name="search_type">
+                <option value="title" {% if search_type == "title" %}selected{% endif %}>제목</option>
+                <option value="author" {% if search_type == "author" %}selected{% endif %}>저자</option>
+                <option value="category" {% if search_type == "category" %}selected{% endif %}>카테고리</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex:2;">
+            <label>검색어</label>
+            <input type="text" name="q" value="{{ query }}" placeholder="검색어를 입력하세요">
+        </div>
+        <div class="form-group">
+            <label>카테고리 필터</label>
+            <select name="category">
+                <option value="">전체</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"d" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>정렬</label>
+            <select name="sort">
+                <option value="title" {% if sort_by == "title" %}selected{% endif %}>제목순</option>
+                <option value="author" {% if sort_by == "author" %}selected{% endif %}>저자순</option>
+                <option value="id_desc" {% if sort_by == "id_desc" %}selected{% endif %}>최신순</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">검색</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>제목</th>
+                <th>저자</th>
+                <th>카테고리</th>
+                <th>수량</th>
+                <th>대출 가능</th>
+                {% if user.is_authenticated %}
+                <th>대출</th>
+                {% endif %}
+                {% if user.is_admin %}
+                <th>관리</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td><a href="{% url 'books:book_detail' book.pk %}">{{ book.title }}</a></td>
+                <td>{{ book.author }}</td>
+                <td>
+                    <div class="category-tags">
+                        {% for cat in book.categories.all %}
+                        <span class="category-tag">{{ cat.name }}</span>
+                        {% empty %}
+                        <span>-</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>{{ book.total_copies }}</td>
+                <td>
+                    {% if book.available_copies > 0 %}
+                    <span class="badge badge-available">{{ book.available_copies }}권</span>
+                    {% else %}
+                    <span class="badge badge-unavailable">불가</span>
+                    {% endif %}
+                </td>
+                {% if user.is_authenticated %}
+                <td>
+                    {% if book.available_copies > 0 %}
+                    <a href="{% url 'loans:borrow' book.pk %}" class="btn btn-success btn-sm">대출</a>
+                    {% else %}
+                    <span class="badge badge-unavailable">-</span>
+                    {% endif %}
+                </td>
+                {% endif %}
+                {% if user.is_admin %}
+                <td>
+                    <a href="{% url 'books:book_edit' book.pk %}" class="btn btn-primary btn-sm">수정</a>
+                    <a href="{% url 'books:book_delete' book.pk %}" class="btn btn-danger btn-sm">삭제</a>
+                </td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center">등록된 도서가 없습니다.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

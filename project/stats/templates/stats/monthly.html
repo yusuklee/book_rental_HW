@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}월별 대출 추이 - 도서관 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>월별 대출 추이 (최근 12개월)</h2>
+
+    {% if max_count > 0 %}
+    <div class="bar-chart">
+        {% for month, count in chart_data %}
+        <div class="bar-row">
+            <span class="bar-label">{{ month }}</span>
+            <span class="bar-fill" style="width: {% widthratio count max_count 400 %}px;"></span>
+            <span class="bar-value">{{ count }}건</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">대출 기록이 없습니다.</p>
+    {% endif %}
+</div>
+
+<!-- Canvas chart with Chart.js -->
+<div class="card">
+    <h2>월별 대출 추이 (그래프)</h2>
+    <div class="chart-container">
+        <canvas id="monthlyChart" width="800" height="400"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ months_json|safe }},
+            datasets: [{
+                label: '대출 건수',
+                data: {{ counts_json|safe }},
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: '#3498db',
+                pointRadius: 5,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}
